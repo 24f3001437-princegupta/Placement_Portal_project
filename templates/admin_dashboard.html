@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-white bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/admin_dashboard"> Admin Dashboard</a>
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <input type="text" class="form-control" placeholder="Search students or companies...">
+                <span class="text-dark fw-bold" >Welcome,  Admin</span>
+                <a href="/login" class="btn btn-outline-dark">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+
+        <div class="row text-center mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm py-3">
+                    <h6 class="text-dark">Total Companies</h6>
+                    <h3>{{ total_companies }}</h3> 
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm py-3">
+                    <h6 class="text-dark">Total Students</h6>
+                    <h3>{{ total_students }}</h3> 
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm py-3">
+                    <h6 class="text-dark">Active Drives</h6>
+                    <h3>{{ total_drives }}</h3> 
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm py-3">
+                    <h6 class="text-dark">Applications</h6>
+                    <h3>{{ total_apps }}</h3> 
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold"> Company Applications</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Contact Info</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comp in pending_companies %}
+                        <tr>
+                            <td>{{ comp.company_name }}</td>
+                            <td>{{ comp.hr_contact }}</td>
+                            <td>
+                                <a href="/approve_company/{{ comp.id }}" class="btn btn-success btn-sm"> Approve</a>
+                                <a href="/reject_company/{{ comp.id }}" class="btn btn-danger btn-sm"> Reject</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h6 class="fw-bold mb-0"> Registered Companies</h6>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        <ul class="list-group">
+                            {% for comp in approved_companies %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ comp.company_name }}</strong><br>
+                                    <small class="text-muted">{{ comp.hr_contact }}</small>
+                                </div>
+                                <a href="/blacklist_company/{{ comp.id }}" class="btn btn-danger btn-sm">Blacklist</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h6 class="fw-bold mb-0"> Registered Students</h6>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        <ul class="list-group">
+                            {% for stu in all_students %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ stu.full_name }}</strong><br>
+                                    <small class="text-muted">{{ stu.contact_info }}</small>
+                                </div>
+                                <a href="/blacklist_student/{{ stu.id }}" class="btn btn-danger btn-sm">Blacklist</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div> <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold"> Ongoing Drives</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th>
+                            <th>Drive Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for drive in ongoing_drives %}
+                        <tr>
+                            <td>{{ loop.index }}</td> 
+                            <td>{{ drive.job_title }}</td>
+                            <td>
+                                <a href="/view_drive/{{ drive.id }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                                <a href="/complete_drive/{{ drive.id }}" class="btn btn-outline-success btn-sm">Mark as Complete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-5">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">📄 Student Applications</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th>
+                            <th>Name</th>
+                            <th>Drive</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in student_applications %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ app.student.full_name }}</td>
+                            <td>{{ app.drive.job_title }}</td>
+                            <td>{{ app.drive.company.company_name }}</td>
+                            <td><span class="badge bg-secondary">{{ app.status }}</span></td>
+                            <td>
+                                <a href="/view_application/{{ app.id }}" class="btn btn-outline-info btn-sm">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div> </body>
+</html>

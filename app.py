@@ -15,6 +15,7 @@ def create_app():
             Admin=User(username="admin1",password="admin123", role="admin" )
             db.session.add(Admin)
             db.session.commit()
+        from application import controlers
     return app
 
 

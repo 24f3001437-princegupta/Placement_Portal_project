@@ -80,4 +80,76 @@ def register_company():
     return render_template("company_register.html")
 
 
+@app.route("/admin_dashboard" )
+def admin():
+    pending_companies= Company.query.filter_by(is_approved=False , is_blacklisted=False).all()
+    approved_companies=Company.query.filter_by(is_approved=True , is_blacklisted=False).all()
+    all_students=Student.query.filter_by( is_blacklisted=False).all()
+    ongoing_drives = PlacementDrive.query.filter_by(status='Pending').all()
+    student_applications = Application.query.filter_by(status='Applied').all()
 
+    total_companies = len(approved_companies)
+    total_students = len(all_students)
+    total_drives = len(ongoing_drives)
+    total_apps = len(student_applications)
+    return render_template( "admin_dashboard.html", pending_companies=pending_companies,approved_companies=approved_companies,
+        all_students=all_students,
+        ongoing_drives=ongoing_drives,
+        student_applications=student_applications,
+        total_companies=total_companies,
+        total_students=total_students,
+        total_drives=total_drives,
+        total_apps=total_apps
+    )
+@app.route("/approve_company/<int:id>")
+def approve_company(id):
+    this_company=Company.query.get(id)
+
+    if this_company:
+        this_company.is_approved= True
+        db.session.commit()
+
+    return redirect("/admin_dashboard")
+
+@app.route("/reject_company/<int:id>")
+def reject_company(id):
+    this_company=Company.query.get(id)
+    if this_company:
+        this_user=User.query.get(this_company.user_id)
+        db.session.delete(this_company)
+        if this_user:
+            db.session.delete(this_user)
+
+    return redirect("/admin_dashboard")
+
+@app.route("/blacklist_company/<int:id>")
+def blacklist_company(id):
+    this_company=Company.query.get(id)
+
+    if this_company:
+        this_company.is_approved=False
+        this_company.is_blacklisted = True
+        db.session.commit()
+    return redirect("/admin_dashboard")
+
+@app.route("/blacklist_student/<int:id>")
+def blacklist_student(id):
+    this_student=Student.query.get(id)
+
+    if this_student:
+        this_student.is_blacklisted=True
+        db.session.commit()
+    return redirect("/admin_dashboard")
+
+@app.route("/")
+def home():
+    return redirect("/login")
+
+@app.route("/complete_drive/<int:id>")
+def complete_drive(id):
+    this_drive=PlacementDrive.query.get(id)
+
+    if this_drive:
+        this_drive.status = 'Completed'
+        db.session.commit()
+    return redirect("/admin_dashboard")
