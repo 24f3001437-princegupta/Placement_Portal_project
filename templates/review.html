@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark mb-4 px-4 shadow-sm">
+        <span class="navbar-brand mb-0 h1">🎓 Company Dashboard</span>
+        <a href="/login" class="btn btn-danger btn-sm">Log Out</a>
+    </nav>
+
+    <div class="container" style="max-width: 600px;">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="fw-normal mb-4 border-bottom pb-2">Student Application</h4>
+                
+                <div class="mb-5">
+                    <p class="mb-2"><span class="text-muted" style="display: inline-block; width: 130px;">Student Name:</span> <span class="fw-medium">{{ student.full_name }}</span></p>
+                    <p class="mb-2"><span class="text-muted" style="display: inline-block; width: 130px;">Department:</span> <span class="fw-medium">{{ student.department }}</span></p>
+                    <br>
+                    <p class="mb-2"><span class="text-muted" style="display: inline-block; width: 130px;">Drive:</span> <span class="fw-medium">{{ drive.drive_name }}</span></p>
+                    <p class="mb-2"><span class="text-muted" style="display: inline-block; width: 130px;">Job Title:</span> <span class="fw-medium">{{ drive.job_title }}</span></p>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="" class="btn btn-outline-primary btn-sm px-3 rounded-pill">view resume</a>
+                        
+                        <form action="/update_status/{{ application.id }}" method="POST" class="m-0">
+                            <select name="status" class="form-select form-select-sm border-secondary shadow-sm" onchange="this.form.submit()">
+                                <option value="Pending" disabled selected>Select Status</option>
+                                <option value="Shortlist">Shortlist</option>
+                                <option value="Waiting">Waiting</option>
+                                <option value="Reject">Reject</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div>
+                        <a href="/view_drive/{{ drive.id }}" class="btn btn-outline-secondary btn-sm px-4 rounded-pill">back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

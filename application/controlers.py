@@ -145,7 +145,7 @@ def blacklist_student(id):
 def home():
     return redirect("/login")
 
-@app.route("/complete_drive/<int:id>")
+@app.route("/admin_complete_drive/<int:id>")
 def complete_drive(id):
     this_drive=PlacementDrive.query.get(id)
 
@@ -153,3 +153,95 @@ def complete_drive(id):
         this_drive.status = 'Completed'
         db.session.commit()
     return redirect("/admin_dashboard")
+
+@app.route("/home/<int:id>")
+def company_home(id):
+    this_user=User.query.get(id)
+    if this_user and this_user.role=="company":
+        company_prof=Company.query.filter_by(user_id=id).first()
+        if company_prof.is_approved== True and company_prof.is_blacklisted== False:
+            upcoming_drives=PlacementDrive.query.filter_by(company_id=company_prof.id, status="Pending").all()
+            closed_drives=PlacementDrive.query.filter_by(company_id=company_prof.id, status="Closed").all()
+
+            return render_template("company_dashboard.html", 
+                                   company=company_prof, 
+                                   upcoming_drives=upcoming_drives, 
+                                   closed_drives=closed_drives,
+                                   current_user=this_user)
+        elif company_prof.is_blacklisted == True:
+            return "<h1>Your company is blacklisted by Admin.</h1>"
+        
+        else:
+            return "<h1>Wait for Admin approval.</h1>"
+
+    return redirect('/login')
+@app.route("/create_drive/<int:current_id>", methods=["GET", "POST"])
+def create_drive(current_id):
+    this_user = User.query.get(current_id)
+    if request.method == "POST":
+        d_name = request.form.get("drive_name")
+        j_title = request.form.get("job_title")
+        desc = request.form.get("description")
+        elig = request.form.get("eligibility")
+        deadln = request.form.get("deadline")
+        company_prof = Company.query.filter_by(user_id=this_user.id).first()
+        
+        new_drive = PlacementDrive(
+            company_id=company_prof.id,
+            drive_name=d_name,
+            job_title=j_title,
+            description=desc,
+            eligibility=elig,
+            deadline=deadln,
+            status="Pending"
+        )
+        
+        db.session.add(new_drive)
+        db.session.commit()
+        
+        return redirect(f"/home/{this_user.id}")
+        
+    return render_template("create_drive.html", current_user=this_user)
+
+@app.route("/comp_complete_drive/<int:id>")
+def company_complete_drive(id):
+    this_drive = PlacementDrive.query.get(id)
+    if this_drive:
+        this_drive.status = 'Closed'
+        db.session.commit()
+        company_prof = Company.query.get(this_drive.company_id)
+        return redirect(f"/home/{company_prof.user_id}")
+    return "Drive not found", 404
+
+@app.route("/view_drive/<int:id>")
+def view_drive(id):
+    this_drive=PlacementDrive.query.get(id)
+    all_applications = Application.query.filter_by(drive_id=id).all()
+
+    company_prof=Company.query.filter_by()
+    company_prof = Company.query.get(this_drive.company_id)
+    this_user = User.query.get(company_prof.user_id)
+    
+    return render_template("view_app.html", drive=this_drive, applications=all_applications, current_user=this_user)
+
+@app.route("/review_student/<int:app_id>")
+def review_student(app_id):
+    this_application=Application.query.get(app_id)
+    this_student=Student.query.get(this_application.student_id)
+    this_drive=PlacementDrive.query.get(this_application.drive_id)
+
+    return render_template("review.html", application=this_application, student=this_student, drive=this_drive)
+
+
+@app.route("/update_status/<int:app_id>", methods=["POST"])
+def update_status(app_id):
+    this_application=Application.query.get(app_id)
+    if this_application:
+        new_status = request.form.get("status")
+        this_application.status = new_status
+        db.session.commit()
+        return redirect(f"/view_drive/{this_application.drive_id}")
+        
+    return "Application not found", 404
+
+
